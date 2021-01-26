@@ -1,0 +1,120 @@
+import React, { Component } from 'react';
+//import FacebookLogin from 'react-facebook-login';
+import GoogleLogin from 'react-google-login';
+import GoogleLogout from 'react-google-login';
+
+import { connect } from 'react-redux';
+import createSetLoginAction from'../forReducesrs/setLoginAction';
+
+class LoginByGoogleButton extends Component {
+		constructor(props) {
+				super(props);
+				const google_LogInLogOut = new 	Map();
+				this.state = {
+					google_LogInLogOutMap: google_LogInLogOut, 
+					googleId: '192335092013-a0l5g1kbhiel7ih6d1cnol736hbi0cpu.apps.googleusercontent.com'
+				};
+	}
+
+	
+
+	
+  signup(res) {
+	let id_token = res.getAuthResponse().id_token;
+	this.props.createSetLoginAction(id_token);
+  };
+
+
+	render() {
+	  const responseGoogle = (response) => {
+		console.log(response);
+		var res = response.profileObj;
+		console.log(res);
+		this.signup(response);
+	  }
+
+
+
+	  const handleLogoutFailure = (logoutFailRes) => {
+		alert(`logout failed, \n fail logout responce: ${logoutFailRes}`);
+	  }
+
+
+	  //const google_LogInLogOut = new 	Map();
+	  this.state.google_LogInLogOutMap.set('google_login', 
+		<GoogleLogin
+			clientId={this.state.googleId}
+			buttonText="Login with Google"
+			onSuccess={responseGoogle}
+			onFailure={responseGoogle} 
+			cookiePolicy={ 'single_host_origin' }
+			responseType='code,token' > 
+		</GoogleLogin>
+	  );
+
+	  this.state.google_LogInLogOutMap.set('google_logout',
+	  <GoogleLogout
+	  render={renderProps => (
+		<button onClick={
+			(res) => {
+				this.props.createSetLoginAction('if you can see this message this means that Jason Web Token isn\'t re ceived from the server');
+				alert(`logout sucseed,\nlogout responce:\n${res}`);
+				console.log('In LoginByGoogleButton - logout responce:');
+				console.log(res);
+			}
+		} 
+		disabled={renderProps.disabled}>Log Out with Google</button>
+	  )}
+	  clientId={this.state.googleId}
+		buttonText='Logout with Google'
+		onLogoutSuccess={ this.logout }
+		onFailure={ handleLogoutFailure } >
+	  </GoogleLogout>
+	  );
+
+
+
+	  return (
+		<div className="App">
+		  <div className="row">
+			  {/*
+			<div className="col-sm-12 btn btn-info">
+			  Login With Google Using ReactJS
+			  </div>
+			  */}
+		  </div>
+		  <div className="row">
+			<div style={{ 'paddingTop': "20px" }} className="col-sm-12">
+			  <div className="col-sm-4"></div>
+			  <div className="col-sm-4">
+
+
+			{	this.props.loginGoogleTokenState === 'if you can see this message this means that Jason Web Token isn\'t re ceived from the server' ? this.state.google_LogInLogOutMap.get('google_login')  : this.state.google_LogInLogOutMap.get('google_logout') 	}
+			  </div>
+
+			</div>
+		  </div>
+		</div>
+	  )
+	}
+
+
+
+
+}
+
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        createSetLoginAction: (payload) => {
+        dispatch(createSetLoginAction(payload))
+      }
+    }
+  }
+
+  const mapStateToProps = (state) => {
+    return { loginGoogleTokenState: state }
+};
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(LoginByGoogleButton);
